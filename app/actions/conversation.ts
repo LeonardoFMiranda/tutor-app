@@ -37,7 +37,7 @@ export async function startConversation(scenarioId?: string) {
     const prompt = `Você é um professor de ${profile.language}. Cenário: ${scenarioContext}. Escreva APENAS a sua primeira frase (curta) saudando o aluno e iniciando o cenário. O idioma DEVE ser ${profile.language}. Nenhuma tradução, apenas a frase no idioma de estudo.`;
     
     const { text } = await generateText({
-      model: groq(process.env.AI_MODEL || 'llama-3.1-8b-instant'),
+      model: groq(process.env.AI_MODEL || 'openai/gpt-oss-120b'),
       prompt,
     });
 

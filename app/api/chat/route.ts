@@ -1,5 +1,5 @@
 import { groq } from '@ai-sdk/groq';
-import { streamText, convertToCoreMessages, tool } from 'ai';
+import { streamText, convertToModelMessages, tool } from 'ai';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/db';
 import { z } from 'zod';
@@ -20,7 +20,9 @@ export async function POST(req: Request) {
     }
   }
 
-  const { messages, conversationId } = await req.json();
+  const body = await req.json();
+  console.log("INCOMING CHAT REQUEST:", body);
+  const { messages, conversationId } = body;
 
   if (!conversationId) {
     return new Response('Missing conversationId', { status: 400 });
@@ -46,11 +48,12 @@ export async function POST(req: Request) {
   let savedUserMessageId = '';
   
   if (latestUserMessage && latestUserMessage.role === 'user') {
+    const messageContent = latestUserMessage.content || (latestUserMessage.parts ? latestUserMessage.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\\n') : '');
     const savedMsg = await prisma.message.create({
       data: {
         conversationId,
         role: 'user',
-        content: latestUserMessage.content,
+        content: messageContent,
       },
     });
     savedUserMessageId = savedMsg.id;
@@ -65,7 +68,10 @@ Após chamar a tool (ou se não houver erros), responda de forma encorajadora no
   const result = await streamText({
     model: groq(modelName),
     system: systemPrompt,
-    messages: convertToCoreMessages(messages),
+    messages: await convertToModelMessages(messages.map((m: any) => ({
+      ...m,
+      parts: m.parts || [{ type: 'text', text: m.content || '' }]
+    }))),
     maxSteps: 2,
     tools: {
       reportCorrections: tool({
@@ -107,5 +113,5 @@ Após chamar a tool (ou se não houver erros), responda de forma encorajadora no
     },
   });
 
-  return result.toDataStreamResponse();
+  return result.toUIMessageStreamResponse();
 }

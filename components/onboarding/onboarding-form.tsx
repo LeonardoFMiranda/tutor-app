@@ -6,6 +6,9 @@ import { ProfileValues } from "@/lib/validations/profile";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { saveOnboardingData } from "@/app/actions/onboarding";
+import { StampBadge } from "@/components/ui/stamp-badge";
 
 export function OnboardingForm({ defaultValues }: { defaultValues?: Partial<ProfileValues> }) {
   const [isPending, startTransition] = useTransition();
@@ -31,14 +34,14 @@ export function OnboardingForm({ defaultValues }: { defaultValues?: Partial<Prof
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <Label>Idioma de Estudo</Label>
+    <form onSubmit={handleSubmit} className="space-y-8 mt-6">
+      <div className="space-y-3">
+        <Label className="text-sm font-semibold text-ink/70 tracking-wide uppercase">Idioma de Estudo</Label>
         <Select 
-          value={formData.language} 
+          value={formData.language || ""} 
           onValueChange={(val) => setFormData({ ...formData, language: val })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="border-0 border-b-2 border-line rounded-none bg-transparent px-0 focus:ring-0 focus:border-navy text-lg text-ink font-medium">
             <SelectValue placeholder="Selecione um idioma" />
           </SelectTrigger>
           <SelectContent>
@@ -51,13 +54,13 @@ export function OnboardingForm({ defaultValues }: { defaultValues?: Partial<Prof
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <Label>Seu Nível Atual</Label>
+      <div className="space-y-3">
+        <Label className="text-sm font-semibold text-ink/70 tracking-wide uppercase">Seu Nível Atual</Label>
         <Select 
-          value={formData.level} 
+          value={formData.level || ""} 
           onValueChange={(val) => setFormData({ ...formData, level: val })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="border-0 border-b-2 border-line rounded-none bg-transparent px-0 focus:ring-0 focus:border-navy text-lg text-ink font-medium">
             <SelectValue placeholder="Selecione seu nível" />
           </SelectTrigger>
           <SelectContent>
@@ -70,13 +73,13 @@ export function OnboardingForm({ defaultValues }: { defaultValues?: Partial<Prof
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <Label>Principal Objetivo</Label>
+      <div className="space-y-3">
+        <Label className="text-sm font-semibold text-ink/70 tracking-wide uppercase">Principal Objetivo</Label>
         <Select 
-          value={formData.goal} 
+          value={formData.goal || ""} 
           onValueChange={(val) => setFormData({ ...formData, goal: val })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="border-0 border-b-2 border-line rounded-none bg-transparent px-0 focus:ring-0 focus:border-navy text-lg text-ink font-medium">
             <SelectValue placeholder="Selecione um objetivo" />
           </SelectTrigger>
           <SelectContent>
@@ -88,12 +91,26 @@ export function OnboardingForm({ defaultValues }: { defaultValues?: Partial<Prof
         </Select>
       </div>
 
+      {/* Dynamic Summary Stamp */}
+      <div className="flex justify-end pt-4 min-h-32 items-center">
+        {formData.language && formData.level && formData.goal && (
+          <StampBadge 
+            text={`${formData.language.slice(0,3)} • ${formData.level}`} 
+            color="gold" 
+            size="lg" 
+            rotation="rotate-6"
+            className="animate-in fade-in zoom-in duration-300"
+          />
+        )}
+      </div>
+
       <Button 
         type="submit" 
-        className="w-full" 
+        size="lg"
+        className="w-full text-lg h-14" 
         disabled={isPending || !formData.language || !formData.level || !formData.goal}
       >
-        {isPending ? "Salvando..." : "Começar a aprender"}
+        {isPending ? "Processando..." : "Confirmar Matrícula"}
       </Button>
     </form>
   );

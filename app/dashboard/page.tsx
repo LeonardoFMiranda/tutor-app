@@ -26,7 +26,7 @@ export default async function DashboardPage() {
       },
       summary: true
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { startedAt: 'desc' }
   });
 
   if (conversations.length === 0) {
@@ -147,7 +147,7 @@ export default async function DashboardPage() {
                   <div className="flex justify-between">
                     <span className="font-semibold">{conv.scenario || "Conversa Livre"}</span>
                     <span className="text-xs text-muted-foreground">
-                      {dateFormatter.format(new Date(conv.createdAt))}
+                      {dateFormatter.format(new Date(conv.startedAt))}
                     </span>
                   </div>
                   <div className="flex justify-between items-center mt-2">

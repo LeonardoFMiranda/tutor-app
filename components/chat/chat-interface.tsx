@@ -1,9 +1,10 @@
 "use client";
 
-import { useChat, Message } from 'ai/react';
+import { useChat, Message } from '@ai-sdk/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useEffect, useRef, useTransition } from 'react';
+import { useEffect, useRef, useTransition, useState } from 'react';
+import { isRedirectError } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Send } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -57,14 +58,31 @@ function HighlightedUserMessage({ text, corrections }: { text: string; correctio
   return <>{elements}</>;
 }
 
+const getMessageText = (m: any) => {
+  if (m.content) return m.content;
+  if (m.parts) {
+    return m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('');
+  }
+  return '';
+};
+
 export function ChatInterface({ conversationId, initialMessages = [] }: { conversationId: string, initialMessages?: Message[] }) {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages, sendMessage, status, error } = useChat({
     api: '/api/chat',
     body: {
       conversationId,
     },
     initialMessages,
   });
+
+  const [localInput, setLocalInput] = useState('');
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!localInput.trim() || status !== 'ready') return;
+    sendMessage({ text: localInput }, { body: { conversationId } });
+    setLocalInput('');
+  };
 
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const [isPending, startTransition] = useTransition();
@@ -74,6 +92,9 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
       try {
         await generateConversationSummary(conversationId);
       } catch (err) {
+        if (isRedirectError(err)) {
+          throw err;
+        }
         console.error(err);
         alert("Erro ao gerar resumo.");
       }
@@ -112,8 +133,10 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
               }
             }
 
+            const messageText = getMessageText(m);
+
             // Se for chamada de tool isolada sem texto ainda, não queremos renderizar bolha vazia se content for ""
-            if (m.role === 'assistant' && (!m.content || m.content.trim() === '') && m.toolInvocations) {
+            if (m.role === 'assistant' && !messageText.trim() && m.toolInvocations) {
               return null; 
             }
 
@@ -121,15 +144,15 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
               <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[80%] rounded-lg p-3 ${m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted whitespace-pre-wrap'}`}>
                   {m.role === 'user' ? (
-                    <HighlightedUserMessage text={m.content || ''} corrections={userCorrections} />
+                    <HighlightedUserMessage text={messageText} corrections={userCorrections} />
                   ) : (
-                    m.content || ''
+                    messageText
                   )}
                 </div>
               </div>
             );
           })}
-          {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
+          {status !== 'ready' && messages[messages.length - 1]?.role !== 'assistant' && (
             <div className="flex justify-start">
               <div className="bg-muted rounded-lg p-3 flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -140,15 +163,20 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
           <div ref={endOfMessagesRef} />
         </CardContent>
         <div className="p-4 border-t">
-          <form onSubmit={handleSubmit} className="flex w-full space-x-2">
+          {error && (
+            <div className="text-center text-sm text-destructive mb-4 p-2 bg-destructive/10 rounded-md">
+              Ocorreu um erro: {error.message}
+            </div>
+          )}
+          <form onSubmit={onSubmit} className="flex w-full space-x-2">
             <Input
-              value={input ?? ''}
-              onChange={handleInputChange}
+              value={localInput}
+              onChange={(e) => setLocalInput(e.target.value)}
               placeholder="Escreva sua mensagem..."
-              disabled={isLoading}
+              disabled={status !== 'ready'}
               className="flex-1"
             />
-            <Button type="submit" disabled={isLoading || !input?.trim()}>
+            <Button type="submit" disabled={status !== 'ready' || !localInput.trim()}>
               <Send className="h-4 w-4" />
               <span className="sr-only">Enviar</span>
             </Button>
