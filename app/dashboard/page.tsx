@@ -36,9 +36,11 @@ export default async function DashboardPage() {
         <p className="text-muted-foreground mb-8 max-w-md">
           Você ainda não teve nenhuma conversa. Que tal começar a praticar agora mesmo?
         </p>
-        <Button asChild size="lg">
-          <Link href="/conversar">Começar a Praticar</Link>
-        </Button>
+        <Link href="/conversar">
+          <Button size="lg">
+            Começar a Praticar
+          </Button>
+        </Link>
       </div>
     );
   }
@@ -78,9 +80,9 @@ export default async function DashboardPage() {
     <div className="container mx-auto p-4 space-y-8 py-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Seu Progresso</h1>
-        <Button asChild>
-          <Link href="/conversar">Nova Conversa</Link>
-        </Button>
+        <Link href="/conversar">
+          <Button>Nova Conversa</Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

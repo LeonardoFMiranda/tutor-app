@@ -8,9 +8,9 @@ export default function NotFound() {
       <p className="text-muted-foreground mb-8">
         Ops! A página que você está procurando não existe ou foi movida.
       </p>
-      <Button asChild size="lg">
-        <Link href="/">Voltar para o Início</Link>
-      </Button>
+      <Link href="/">
+        <Button size="lg">Voltar para o Início</Button>
+      </Link>
     </div>
   );
 }

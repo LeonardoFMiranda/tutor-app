@@ -50,9 +50,9 @@ export default async function SummaryPage({ params }: { params: Promise<{ conver
           </div>
         </CardContent>
         <CardFooter>
-          <Button asChild className="w-full">
-            <Link href="/conversar">Iniciar Nova Conversa</Link>
-          </Button>
+          <Link href="/conversar" className="block w-full">
+            <Button className="w-full">Iniciar Nova Conversa</Button>
+          </Link>
         </CardFooter>
       </Card>
     </div>

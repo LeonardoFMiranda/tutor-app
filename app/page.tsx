@@ -10,13 +10,13 @@ export default function Home() {
       <p className="max-w-2xl text-xl text-muted-foreground mb-10">
         Pratique conversação no seu ritmo. Nosso tutor com Inteligência Artificial corrige seus erros, explica as regras em tempo real e adapta-se ao seu nível.
       </p>
-      <div className="flex gap-4">
-        <Button asChild size="lg">
-          <Link href="/dashboard">Começar a Praticar</Link>
-        </Button>
-        <Button asChild variant="outline" size="lg">
-          <Link href="/onboarding">Como funciona</Link>
-        </Button>
+      <div className="flex gap-4 z-10">
+        <Link href="/conversar">
+          <Button size="lg">Começar a Praticar</Button>
+        </Link>
+        <Link href="/dashboard">
+          <Button variant="outline" size="lg">Ver meu Progresso</Button>
+        </Link>
       </div>
       
       <div className="mt-20 grid grid-cols-1 gap-8 sm:grid-cols-3 max-w-4xl text-left">
