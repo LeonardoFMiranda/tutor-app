@@ -9,7 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export function OnboardingForm({ defaultValues }: { defaultValues?: Partial<ProfileValues> }) {
   const [isPending, startTransition] = useTransition();
-  const [formData, setFormData] = useState<Partial<ProfileValues>>(defaultValues || {});
+  const [formData, setFormData] = useState<Partial<ProfileValues>>({
+    language: "",
+    level: "",
+    goal: "",
+    ...defaultValues
+  });
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
