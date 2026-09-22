@@ -6,6 +6,55 @@ import { Input } from '@/components/ui/input';
 import { useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Send } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Badge } from '@/components/ui/badge';
+
+function HighlightedUserMessage({ text, corrections }: { text: string; corrections?: any[] }) {
+  if (!corrections || corrections.length === 0) return <>{text}</>;
+
+  let elements: React.ReactNode[] = [text];
+
+  corrections.forEach((corr, index) => {
+    elements = elements.flatMap((el, elIndex) => {
+      if (typeof el === 'string') {
+        const parts = el.split(corr.originalText);
+        if (parts.length === 1) return [el];
+        
+        const newEls: React.ReactNode[] = [];
+        parts.forEach((part, i) => {
+          newEls.push(part);
+          if (i < parts.length - 1) {
+            newEls.push(
+              <Popover key={`corr-${index}-${elIndex}-${i}`}>
+                <PopoverTrigger asChild>
+                  <span className="bg-destructive/30 text-red-100 border-b-2 border-destructive cursor-pointer hover:bg-destructive/50 px-1 rounded-sm">
+                    {corr.originalText}
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-3" side="bottom">
+                  <div className="flex flex-col gap-2 text-sm">
+                    <div className="flex justify-between items-center">
+                      <Badge variant="destructive">{corr.category}</Badge>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Correção: </span>
+                      <span className="font-semibold text-primary">{corr.correctedText}</span>
+                    </div>
+                    <p className="text-sm">{corr.explanation}</p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            );
+          }
+        });
+        return newEls;
+      }
+      return [el];
+    });
+  });
+
+  return <>{elements}</>;
+}
 
 export function ChatInterface({ conversationId }: { conversationId: string }) {
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
@@ -30,13 +79,35 @@ export function ChatInterface({ conversationId }: { conversationId: string }) {
               Mande uma mensagem para começar a conversar!
             </div>
           )}
-          {messages.map(m => (
-            <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] rounded-lg p-3 ${m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted whitespace-pre-wrap'}`}>
-                {m.content}
+          {messages.map((m, index) => {
+            let userCorrections = undefined;
+            if (m.role === 'user') {
+              const nextMsg = messages[index + 1];
+              if (nextMsg?.role === 'assistant' && nextMsg.toolInvocations) {
+                const correctionTool = nextMsg.toolInvocations.find(t => t.toolName === 'reportCorrections');
+                if (correctionTool && 'args' in correctionTool && correctionTool.args.corrections) {
+                  userCorrections = correctionTool.args.corrections;
+                }
+              }
+            }
+
+            // Se for chamada de tool isolada sem texto ainda, não queremos renderizar bolha vazia se content for ""
+            if (m.role === 'assistant' && m.content.trim() === '' && m.toolInvocations) {
+              return null; 
+            }
+
+            return (
+              <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[80%] rounded-lg p-3 ${m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted whitespace-pre-wrap'}`}>
+                  {m.role === 'user' ? (
+                    <HighlightedUserMessage text={m.content} corrections={userCorrections} />
+                  ) : (
+                    m.content
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
             <div className="flex justify-start">
               <div className="bg-muted rounded-lg p-3 flex items-center gap-2">
