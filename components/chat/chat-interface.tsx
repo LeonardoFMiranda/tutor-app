@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from 'ai/react';
+import { useChat, Message } from 'ai/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useEffect, useRef } from 'react';
@@ -56,12 +56,13 @@ function HighlightedUserMessage({ text, corrections }: { text: string; correctio
   return <>{elements}</>;
 }
 
-export function ChatInterface({ conversationId }: { conversationId: string }) {
+export function ChatInterface({ conversationId, initialMessages = [] }: { conversationId: string, initialMessages?: Message[] }) {
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
     api: '/api/chat',
     body: {
       conversationId,
     },
+    initialMessages,
   });
 
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
