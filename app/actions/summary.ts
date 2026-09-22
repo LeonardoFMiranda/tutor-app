@@ -8,7 +8,7 @@ import { generateObject } from "ai";
 import { z } from "zod";
 
 const summarySchema = z.object({
-  mainPoints: z.string().describe("Resumo dos principais pontos abordados na conversa."),
+  mainPoints: z.array(z.string()).describe("Resumo dos principais pontos abordados na conversa."),
   newVocabulary: z.array(z.string()).describe("Lista de palavras novas ou importantes que apareceram na conversa no idioma de estudo."),
 });
 

@@ -32,7 +32,11 @@ export default async function SummaryPage({ params }: { params: Promise<{ conver
         <CardContent className="space-y-6">
           <div>
             <h3 className="font-semibold text-lg mb-2">Pontos Principais</h3>
-            <p className="text-muted-foreground">{summary.mainPoints}</p>
+            <ul className="list-disc pl-5 text-muted-foreground space-y-1">
+              {summary.mainPoints.map((point, index) => (
+                <li key={index}>{point}</li>
+              ))}
+            </ul>
           </div>
           
           <div>
