@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 SE o usuário cometer ERROS gramaticais, de vocabulário ou falta de naturalidade na última mensagem, você DEVE SEMPRE chamar a tool 'reportCorrections' antes de responder com texto. Se a frase estiver perfeita, não chame a tool.
 Após chamar a tool (ou se não houver erros), responda de forma encorajadora no idioma de estudo, mantendo suas respostas curtas e focadas na conversação.`;
 
-  const modelName = process.env.AI_MODEL || 'llama-3.1-8b-instant';
+  const modelName = process.env.AI_MODEL || 'openai/gpt-oss-120b';
 
   const result = await streamText({
     model: groq(modelName),

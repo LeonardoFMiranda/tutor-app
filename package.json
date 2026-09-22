@@ -15,7 +15,7 @@
     "@prisma/client": "^6.19.3",
     "@upstash/ratelimit": "^2.1.0",
     "@upstash/redis": "^1.39.0",
-    "ai": "^7.0.109",
+    "ai": "^3.4.9",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
     "lucide-react": "^1.47.0",

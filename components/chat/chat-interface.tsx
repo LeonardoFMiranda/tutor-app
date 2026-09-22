@@ -113,7 +113,7 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
             }
 
             // Se for chamada de tool isolada sem texto ainda, não queremos renderizar bolha vazia se content for ""
-            if (m.role === 'assistant' && m.content.trim() === '' && m.toolInvocations) {
+            if (m.role === 'assistant' && (!m.content || m.content.trim() === '') && m.toolInvocations) {
               return null; 
             }
 
@@ -121,9 +121,9 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
               <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[80%] rounded-lg p-3 ${m.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted whitespace-pre-wrap'}`}>
                   {m.role === 'user' ? (
-                    <HighlightedUserMessage text={m.content} corrections={userCorrections} />
+                    <HighlightedUserMessage text={m.content || ''} corrections={userCorrections} />
                   ) : (
-                    m.content
+                    m.content || ''
                   )}
                 </div>
               </div>
@@ -142,13 +142,13 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
         <div className="p-4 border-t">
           <form onSubmit={handleSubmit} className="flex w-full space-x-2">
             <Input
-              value={input}
+              value={input ?? ''}
               onChange={handleInputChange}
               placeholder="Escreva sua mensagem..."
               disabled={isLoading}
               className="flex-1"
             />
-            <Button type="submit" disabled={isLoading || !input.trim()}>
+            <Button type="submit" disabled={isLoading || !input?.trim()}>
               <Send className="h-4 w-4" />
               <span className="sr-only">Enviar</span>
             </Button>
