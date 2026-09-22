@@ -3,11 +3,21 @@ import { streamText, convertToCoreMessages, tool } from 'ai';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/db';
 import { z } from 'zod';
+import { ratelimit } from '@/lib/ratelimit';
+
+export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
     return new Response('Unauthorized', { status: 401 });
+  }
+
+  if (ratelimit) {
+    const { success } = await ratelimit.limit(userId);
+    if (!success) {
+      return new Response('Too Many Requests', { status: 429 });
+    }
   }
 
   const { messages, conversationId } = await req.json();

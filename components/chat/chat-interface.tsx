@@ -140,18 +140,24 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
           <div ref={endOfMessagesRef} />
         </CardContent>
         <div className="p-4 border-t">
-          <form onSubmit={handleSubmit} className="flex gap-2">
+          <form onSubmit={handleSubmit} className="flex w-full space-x-2">
             <Input
               value={input}
               onChange={handleInputChange}
-              placeholder="Digite sua mensagem..."
-              className="flex-1"
+              placeholder="Escreva sua mensagem..."
               disabled={isLoading}
+              className="flex-1"
             />
             <Button type="submit" disabled={isLoading || !input.trim()}>
               <Send className="h-4 w-4" />
+              <span className="sr-only">Enviar</span>
             </Button>
           </form>
+          <div className="text-center mt-2">
+            <p className="text-[10px] text-muted-foreground">
+              Correções e respostas geradas por IA podem conter imprecisões.
+            </p>
+          </div>
         </div>
       </Card>
     </div>
