@@ -3,11 +3,12 @@
 import { useChat, Message } from 'ai/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useTransition } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Send } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
+import { generateConversationSummary } from '@/app/actions/summary';
 
 function HighlightedUserMessage({ text, corrections }: { text: string; corrections?: any[] }) {
   if (!corrections || corrections.length === 0) return <>{text}</>;
@@ -66,6 +67,18 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
   });
 
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const handleEndConversation = () => {
+    startTransition(async () => {
+      try {
+        await generateConversationSummary(conversationId);
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao gerar resumo.");
+      }
+    });
+  };
 
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -73,6 +86,13 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] max-w-3xl mx-auto p-4">
+      <div className="flex justify-between items-center mb-4 px-1">
+        <h2 className="text-lg font-semibold text-muted-foreground">Sessão Ativa</h2>
+        <Button variant="destructive" onClick={handleEndConversation} disabled={isPending || messages.length === 0}>
+          {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+          Encerrar Conversa
+        </Button>
+      </div>
       <Card className="flex-1 overflow-hidden flex flex-col">
         <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 && (
