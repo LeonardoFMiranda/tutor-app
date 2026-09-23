@@ -10,6 +10,8 @@ import { Loader2, Send } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { generateConversationSummary } from '@/app/actions/summary';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 function HighlightedUserMessage({ text, corrections }: { text: string; corrections?: any[] }) {
   if (!corrections || corrections.length === 0) return <>{text}</>;
@@ -135,9 +137,21 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
 
             const messageText = getMessageText(m);
 
-            // Se for chamada de tool isolada sem texto ainda, não queremos renderizar bolha vazia se content for ""
-            if (m.role === 'assistant' && !messageText.trim() && m.toolInvocations) {
-              return null; 
+            const isLastMessage = index === messages.length - 1;
+            
+            // Se a mensagem do assistente for vazia
+            if (m.role === 'assistant' && !messageText.trim()) {
+              if (isLastMessage && status !== 'ready') {
+                return (
+                  <div key={m.id} className="flex justify-start">
+                    <div className="bg-muted rounded-lg p-3 flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="text-sm">Digitando...</span>
+                    </div>
+                  </div>
+                );
+              }
+              return null; // Ocultar bolha vazia
             }
 
             return (
@@ -146,7 +160,11 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
                   {m.role === 'user' ? (
                     <HighlightedUserMessage text={messageText} corrections={userCorrections} />
                   ) : (
-                    messageText
+                    <div className="prose prose-sm max-w-none text-foreground">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {messageText}
+                      </ReactMarkdown>
+                    </div>
                   )}
                 </div>
               </div>
