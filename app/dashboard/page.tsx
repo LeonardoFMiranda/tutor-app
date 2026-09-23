@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 
@@ -154,11 +154,12 @@ export default async function DashboardPage() {
                     <span className="text-sm text-muted-foreground">
                       {conv.summary ? "Resumo disponível" : "Em andamento / Sem resumo"}
                     </span>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={conv.summary ? `/conversar/${conv.id}/resumo` : `/conversar/${conv.id}`}>
-                        {conv.summary ? "Ver Resumo" : "Continuar"}
-                      </Link>
-                    </Button>
+                    <Link 
+                      href={conv.summary ? `/conversar/${conv.id}/resumo` : `/conversar/${conv.id}`}
+                      className={buttonVariants({ variant: "outline", size: "sm" })}
+                    >
+                      {conv.summary ? "Ver Resumo" : "Continuar"}
+                    </Link>
                   </div>
                 </li>
               ))}

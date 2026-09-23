@@ -30,10 +30,10 @@ function HighlightedUserMessage({ text, corrections }: { text: string; correctio
           if (i < parts.length - 1) {
             newEls.push(
               <Popover key={`corr-${index}-${elIndex}-${i}`}>
-                <PopoverTrigger asChild>
-                  <span className="bg-destructive/30 text-red-100 border-b-2 border-destructive cursor-pointer hover:bg-destructive/50 px-1 rounded-sm">
-                    {corr.originalText}
-                  </span>
+                <PopoverTrigger 
+                  render={<span className="bg-destructive/30 text-red-100 border-b-2 border-destructive cursor-pointer hover:bg-destructive/50 px-1 rounded-sm" />}
+                >
+                  {corr.originalText}
                 </PopoverTrigger>
                 <PopoverContent className="w-80 p-3" side="bottom">
                   <div className="flex flex-col gap-2 text-sm">
@@ -193,6 +193,7 @@ export function ChatInterface({ conversationId, initialMessages = [] }: { conver
               placeholder="Escreva sua mensagem..."
               disabled={status !== 'ready'}
               className="flex-1"
+              autoComplete="off"
             />
             <Button type="submit" disabled={status !== 'ready' || !localInput.trim()}>
               <Send className="h-4 w-4" />
